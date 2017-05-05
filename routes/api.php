@@ -13,4 +13,8 @@ use Illuminate\Http\Request;
 |
 */
 
+Route::post('storeProduct', 'ProductsController@store');
+Route::get('getProduct', 'ProductsController@index');
+Route::get('showProduct/{id}', 'ProductsController@show');
+Route::post('deleteProduct/{id}', 'ProductsController@destroy');
 Route::any('{path?}', 'MainController@index')->where("path", ".+");

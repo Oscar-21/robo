@@ -11,12 +11,12 @@ use Purifier;
 class ProductsController extends Controller {
 
   public function index() {
-    
+
     $products = Product::all();
   }
 
   public function storeNewProduct(Request $request) {
-    
+
     $validator = Validator::make(Purifier::clean($request->all()), [
 
       'description' => 'required',
@@ -28,7 +28,7 @@ class ProductsController extends Controller {
       'availability' => 'required',
     ]);
 
-    if ($validator->fails()) 
+    if ($validator->fails())
       return Response::json(["error" => "You must fill out all fields."]);
 
     $product = new Product;
@@ -49,7 +49,7 @@ class ProductsController extends Controller {
     return Response::json(["success" => "You did it"]);
   }
 
-  public function toggleDescription($id) {
+  /*public function toggleDescription($id) {
 
   }
 
@@ -79,14 +79,14 @@ class ProductsController extends Controller {
   public function shoppingCart() {
 
     $products=
-  }
+  }*/
 
   public function show($id) {
 
     $product = Product::find($id);
-    return Response::json(['key' => 'message']);
+    return Response::json($product);
   }
-  
+
   public function destroy($id) {
 
     $product = Product::find($id);
