@@ -4,21 +4,22 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class Products extends Migration {
+class Orders extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
     public function up() {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('price');
-            $table->longText('image');
-            $table->integer('quantity');
-            $table->string('name');
-            $table->integer('categoryId');
-            $table->boolean('availability');
+            $table->integer('userId');
+            $table->integer('productsId');
+            $table->integer('amount');
+            $table->integer('totalPrice');
+            $table->string('comment');
+            $table->integer('reviewId');
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ class Products extends Migration {
      * @return void
      */
     public function down() {
-        Schema::dropIfExists('products'); 
+        Schema::dropIfExists('orders');
     }
 }
