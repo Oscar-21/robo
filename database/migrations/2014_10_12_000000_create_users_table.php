@@ -19,6 +19,9 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->integer('roleID');
+            $table->longText('address')->nullable();
+            // set defualt value
+            /*$table->integer('roleID')->default(2);*/
             $table->rememberToken();
             $table->timestamps();
         });

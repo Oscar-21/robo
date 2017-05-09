@@ -13,8 +13,15 @@ use Illuminate\Http\Request;
 |
 */
 
+// Product Routes
 Route::post('storeProduct', 'ProductsController@storeNewProduct');
 Route::get('getProduct', 'ProductsController@index');
 Route::get('showProduct/{id}', 'ProductsController@show');
 Route::post('deleteProduct/{id}', 'ProductsController@destroy');
+
+// User Routes
+Route::post('signUp', 'UsersController@signUp');
+Route::post('signIn', 'UsersController@signIn');
+
+// Redirect Route
 Route::any('{path?}', 'MainController@index')->where("path", ".+");

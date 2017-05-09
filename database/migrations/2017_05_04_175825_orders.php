@@ -11,16 +11,18 @@ class Orders extends Migration
      *
      * @return void
      */
-    public function up() {
-        Schema::create('orders', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('userId');
-            $table->integer('productsId');
-            $table->integer('amount');
-            $table->integer('totalPrice');
-            $table->string('comment');
-            $table->integer('reviewId');
-            $table->timestamps();
+    public function up() 
+    {
+      Schema::create('orders', function (Blueprint $table) 
+      {
+        $table->increments('id');
+        $table->integer('userId');
+        $table->integer('productsId');
+        $table->integer('amount');
+        $table->integer('totalPrice');
+        $table->string('comment');
+        $table->boolean('useAddress');
+        $table->timestamps();
         });
     }
 
@@ -29,7 +31,8 @@ class Orders extends Migration
      *
      * @return void
      */
-    public function down() {
-        Schema::dropIfExists('orders');
+    public function down() 
+    {
+      Schema::dropIfExists('orders');
     }
 }
