@@ -29,6 +29,8 @@ Route::post('deleteProduct/{id}', 'ProductsController@destroy');
 // User Routes
 Route::post('signUp', 'UsersController@signUp');
 Route::post('signIn', 'UsersController@signIn');
+Route::get('showAllUsers', 'UsersController@index');
+Route::post('updateAddress', 'UsersController@updateAddress');  
 
 // Redirect Route
 Route::any('{path?}', 'MainController@index')->where("path", ".+");

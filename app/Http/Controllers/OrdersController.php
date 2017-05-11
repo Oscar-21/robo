@@ -14,15 +14,16 @@ use Auth;
 
 /*$order->userID=Auth::user()->id;*/
 
-class OrdersController extends Controller 
+class OrdersController extends Controller
 {
-  public function __construct() 
+  public function __construct()
   {
-    $this->middleware("jwt.auth", ["only"=>["indexUser","store","update","destroy","indexAdmin","indexByUser","userDestroy"]]);
+    $this->middleware("jwt.auth", [
+      "only"=>["indexUser","store","update","destroy","indexAdmin","indexByUser","userDestroy"]]);
   }
 
   # Let user see order history
-  public function indexUser() 
+  public function indexUser()
   {
     $userID = Auth::id();
 
@@ -36,7 +37,7 @@ class OrdersController extends Controller
     $admin = Auth::user();
 
     if ($admin->id == 1)
-    { 
+    {
       $order = Order::all();
       return Response::json($order);
     }
@@ -46,7 +47,7 @@ class OrdersController extends Controller
   public function indexByUser(Request $request)
   {
     $validator = Validator::make(Purifier::clean($request->all()));
-  
+
     if ($validator->fails())
     {
       return Response::json(["error" => "Invalid input."]);
@@ -61,7 +62,7 @@ class OrdersController extends Controller
     }
   }
   # allow user to make order
-  public function store(Request $request) 
+  public function store(Request $request)
   {
       $validator = Validator::make(Purifier::clean($request->all()), [
         'productsId' => 'required',
@@ -88,12 +89,12 @@ class OrdersController extends Controller
         $order->amount = $request->input('amount');
 
         # Calculate subtotal
-        $subTotal = $request->input('totalPrice');
-        $itemsOrdered = $request->input('amount');
+        $subTotal = intval($request->input('totalPrice'));
+        $itemsOrdered = intval($request->input('amount'));
 
         # Calculate total price
-        $Total = $subTotal * $itemsOrdered;
-        
+        /*$Total = $subTotal * $itemsOrdered;*/
+
         $order->totalPrice = $Total;
         $order->comment = $request->input('comment');
 
@@ -108,8 +109,8 @@ class OrdersController extends Controller
   }
 
   # allow user to change quantity ordered
-  public function update(Request $request) 
-  {  
+  public function update(Request $request)
+  {
     $user = Auth::user();
 
     if ($user != empty)
@@ -119,7 +120,7 @@ class OrdersController extends Controller
       // update last order
       if ($request->input('quantity') != empty)
       {
-        $quantityUpdate = $request->input('quantity'); 
+        $quantityUpdate = $request->input('quantity');
         $order = Order::where("userId","=",$user->id)->first();
 
         $order->amount = $quantityUpdate;
@@ -127,8 +128,8 @@ class OrdersController extends Controller
 
       if ($request->input('item') != empty)
       {
-                
-        $itemUpdate = $request->input('item'); 
+
+        $itemUpdate = $request->input('item');
         $order = Order::where("userId","=",$user->id)->first();
 
         $order->productsId = $itemUpdate;
@@ -139,13 +140,12 @@ class OrdersController extends Controller
 
     // allow user to cancel current order
     public function userDestroy($id)
-    {  
+    {
 
         $user = Auth::user();
-      
+
         $order = Order::where("userId","=",$user->id)->where('id','=',$id)->first();
         $order->delete();
-      
+
     }
-  }
 }

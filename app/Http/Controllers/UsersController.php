@@ -16,9 +16,10 @@ class UsersController extends Controller
 {
   public function __construct() 
   {
-    $this->middleware("jwt.auth", ["only"=>["destroy","show",]]);
+    $this->middleware("jwt.auth", ["only"=>["destroy","show","index","updateAddress"]]);
   }
 
+  #DONE
   public function signUp(Request $request) 
   {
     $validator = Validator::make(Purifier::clean($request->all()), [
@@ -39,7 +40,7 @@ class UsersController extends Controller
       return Response::json(["error" => "Email or username alrready in use."]);
     }
 
-    $check = User::where("id","=",1)->get();
+    $check = User::where("id","=",1)->first();
 
     if (empty($check))
     {
@@ -48,6 +49,9 @@ class UsersController extends Controller
       $user->password = Hash::make("password");
       $user->email = "admin@mail.com";
       $user->roleID = 1;
+
+      $user->save();
+      return Response::json(["success" => "Admin created successfully"]);
     }
 
     $user = new User;
@@ -58,9 +62,10 @@ class UsersController extends Controller
     /*$user->roleID = Role::where("name","=",customer->get(id);*/
 
     $user->save();
-    return Response::json(["success" => "Account created successfully"]);
+    return Response::json(["success" => "User created successfully"]);
   }
 
+  # TODO
   public function signIn(Request $request) 
   {
     $validator = Validator::make(Purifier::clean($request->all()), [
@@ -79,6 +84,7 @@ class UsersController extends Controller
       return Response::json(compact("token"));
   }
 
+  # TODO
   # let admin delelte specific user
   public function deleteUser($id)
   {
@@ -91,6 +97,7 @@ class UsersController extends Controller
     }
   }
   
+  # TODO
   # let admin see all users
   public function show()
   {
@@ -103,7 +110,7 @@ class UsersController extends Controller
     }
   }
 
-  
+  # TODO
   # let admin see specific user
   public function showUser($id)
   {
@@ -116,16 +123,36 @@ class UsersController extends Controller
     }
   }
 
+  # TODO
   # allow user to update address
-  public function updateAdress(Request $request)
+  public function updateAddress(Request $request)
   {
-    $user = Auth::id();
-    
-    if ($user == 2)
+    $id = Auth::id();
+    $user = User::where("id","=",$id)->first();
+    $check = $user->roleID;
+
+    if ($check == 2 )
     {
-      $user = new User;
+      $user->address = $request->input("address");
+      $user->save();
+      return Response::json(["success" => "Address updated"]);
     }
   }
 
+  # ADMIN show all users
+  public function index()
+  {
+    $admin = Auth::id();
 
+    if ($admin == 1)
+    {
+      $user = User::all();
+      return Response::json($user);
+    }
+    else
+    {
+      return Response::json(["error" => "Invalid Credentials"]);
+    }
+
+  }
 }
