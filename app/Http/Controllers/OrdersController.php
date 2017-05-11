@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Order;
 use App\Product;
+use App\Role;
 use Response;
 use Illuminate\Support\Facades\Validator;
 use Purifier;
@@ -15,27 +16,33 @@ use Auth;
 
 class OrdersController extends Controller 
 {
-
   public function __construct() 
   {
-    $this->middleware("jwt.auth", ["only"=>["indexUser","store","update","destroy"]]);
+    $this->middleware("jwt.auth", ["only"=>["indexUser","store","update","destroy","indexAdmin","indexByUser","userDestroy"]]);
   }
 
-  // Let user see order history
+  # Let user see order history
   public function indexUser() 
   {
-    $user = Auth::user();
+    $userID = Auth::id();
 
-    $order = Order::where("userId","=",$user->id)->get();
+    $order = Order::where("userId","=",$userID)->get();
     return Response::json($order);
   }
 
+  # allow admin to see all orders
   public function indexAdmin()
   {
-    $order = Order::all();
-    return Response::json($order);
+    $admin = Auth::user();
+
+    if ($admin->id == 1)
+    { 
+      $order = Order::all();
+      return Response::json($order);
+    }
   }
 
+  # allow admin to see all orderes made by specific user
   public function indexByUser(Request $request)
   {
     $validator = Validator::make(Purifier::clean($request->all()));
@@ -45,12 +52,15 @@ class OrdersController extends Controller
       return Response::json(["error" => "Invalid input."]);
     }
 
-    $user = $request->input('email');
-    $order = Order::where('email','=',$user->id)->get();
+    $admin = Auth::user();
+
+    if ($admin->id == 1)
+    {
+      $userQuery = $request->input('email');
+      $order = Order::where('email','=',$userQuery)->get();
+    }
   }
-
-
-
+  # allow user to make order
   public function store(Request $request) 
   {
       $validator = Validator::make(Purifier::clean($request->all()), [
@@ -73,7 +83,7 @@ class OrdersController extends Controller
         // Insert new user into Users table
         $order = new Order;
 
-        $order->userId = Auth::user()->id;
+        $order->userId = Auth::id();
         $order->productsId = $request->input('productsId');
         $order->amount = $request->input('amount');
 
@@ -97,6 +107,7 @@ class OrdersController extends Controller
       }
   }
 
+  # allow user to change quantity ordered
   public function update(Request $request) 
   {  
     $user = Auth::user();
@@ -122,9 +133,7 @@ class OrdersController extends Controller
 
         $order->productsId = $itemUpdate;
       }
-
       order->save();
-          
     }
   }
 
@@ -136,10 +145,7 @@ class OrdersController extends Controller
       
         $order = Order::where("userId","=",$user->id)->where('id','=',$id)->first();
         $order->delete();
-
-
       
     }
   }
-
 }

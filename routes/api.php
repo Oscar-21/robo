@@ -13,6 +13,13 @@ use Illuminate\Http\Request;
 |
 */
 
+// Roles Routes
+Route::post('storeRole', 'RolesController@store');
+Route::get('getRoles', 'RolesController@index');
+Route::post('updateRole/{id}', 'RolesController@update');
+Route::get('showRole/{id}', 'RolesController@show');
+Route::post('deleteRole/{id}', 'RolesController@destroy');
+
 // Product Routes
 Route::post('storeProduct', 'ProductsController@storeNewProduct');
 Route::get('getProduct', 'ProductsController@index');

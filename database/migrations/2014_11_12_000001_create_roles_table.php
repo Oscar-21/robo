@@ -20,9 +20,8 @@ class CreateRolesTable extends Migration
       $table->string('name');
       $table->timestamps();
     });
-  }
 
-  /**
+  }
    * Reverse the migrations.
    *
    * @return void
