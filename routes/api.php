@@ -25,6 +25,13 @@ Route::post('storeProduct', 'ProductsController@storeNewProduct');
 Route::get('getProduct', 'ProductsController@index');
 Route::get('showProduct/{id}', 'ProductsController@show');
 Route::post('deleteProduct/{id}', 'ProductsController@destroy');
+Route::post('toggleDescription/{id}', 'ProductsController@toggleDescription');
+Route::post('togglePrice/{id}', 'ProductsController@togglePrice');
+Route::post('toggleImage/{id}', 'ProductsController@toggleImage');
+Route::post('toggleName/{id}', 'ProductsController@toggleName');
+Route::post('toggleCategoryId/{id}', 'ProductsController@toggleCategoryId');
+Route::post('toggleQuantity/{id}', 'ProductsController@toggleQuantity');
+Route::get('toggleAvailability/{id}', 'ProductsController@toggleAvailability');
 
 // User Routes
 Route::post('signUp', 'UsersController@signUp');
