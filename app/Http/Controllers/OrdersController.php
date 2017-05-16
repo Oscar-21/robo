@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Order;
 use App\Product;
-use App\Role;
+use App\User;
+use Role;
 use Response;
 use Illuminate\Support\Facades\Validator;
 use Purifier;
@@ -22,7 +23,7 @@ class OrdersController extends Controller
       "only"=>["indexUser","store","update","destroy","indexAdmin","indexByUser","userDestroy"]]);
   }
 
-  # Let user see order history
+  #TODO Let user see order history
   public function indexUser()
   {
     $userID = Auth::id();
@@ -31,7 +32,7 @@ class OrdersController extends Controller
     return Response::json($order);
   }
 
-  # allow admin to see all orders
+  #TODO allow admin to see all orders
   public function indexAdmin()
   {
     $admin = Auth::user();
@@ -43,7 +44,7 @@ class OrdersController extends Controller
     }
   }
 
-  # allow admin to see all orderes made by specific user
+  #TODO allow admin to see all orderes made by specific user
   public function indexByUser(Request $request)
   {
     $validator = Validator::make(Purifier::clean($request->all()));
@@ -61,64 +62,91 @@ class OrdersController extends Controller
       $order = Order::where('email','=',$userQuery)->get();
     }
   }
-  # allow user to make order
+  #TODO allow user to make order
   public function store(Request $request)
   {
+
+
+    $user = Auth::user();
+    if ($user->roleID == 2)
+    {
       $validator = Validator::make(Purifier::clean($request->all()), [
         'productsId' => 'required',
         'amount' => 'required',
-        'totalPrice' => 'required',
-        'comment' => 'required',
         'useAddress' => 'required',
+        'comment' => 'required'
       ]);
 
       if ($validator->fails())
+        {
+          return Response::json(["error" => "You must fill out all fields."]);
+        }
+
+      $id = $request->input('productsId');
+      $item = Product::where("categoryId","=",$id)->select("availability")->first();
+      $update = Product::where("categoryId","=",$id)->first();
+    
+      if ( $item->availability == 0)
       {
-        return Response::json(["error" => "You must fill out all fields."]);
+        return Response::json(["error", "Out of Stock"]);
       }
 
-      $user = Auth::user();
-
-      if ($user->roleID == 2)
-      {
+        // UPDATE PRODUCT INVENTORY 
+        $current = $update->quantity;
+    
+        $update->quantity = $current - ($request->input('amount')); 
+         
         // Insert new user into Users table
+
         $order = new Order;
 
         $order->userId = Auth::id();
         $order->productsId = $request->input('productsId');
+
         $order->amount = $request->input('amount');
 
         # Calculate subtotal
-        $subTotal = intval($request->input('totalPrice'));
-        $itemsOrdered = intval($request->input('amount'));
+        $subTotal = Product::where("categoryId","=",$id)->select("price")->first();
+        $itemsOrdered = $request->input('amount');
 
         # Calculate total price
-        /*$Total = $subTotal * $itemsOrdered;*/
+        $Total = ($subTotal->price) * $itemsOrdered;
 
         $order->totalPrice = $Total;
         $order->comment = $request->input('comment');
+        $order->useAddress = $request->input('useAddress');
+
+        if ($order->useAddress != 0)
+        {
+          $order->address = $user->address;
+        } 
+        else
+        {
+          $order->address = $request->input('address');
+        }
 
         $order->save();
-
+        $update->save();
         return Response::json(["success" => "You did it"]);
       }
       else
       {
-        return Response::json(["error" => "You need to log in to place an order."]);
+        return Response::json(["error" => "Invalid Credentials"]);
       }
+    
   }
 
-  # allow user to change quantity ordered
-  public function update(Request $request)
+  #TODO allow user to change quantity ordered
+ /* public function update(Request $request)
   {
     $user = Auth::user();
 
-    if ($user != empty)
+    if (!empty($user))
     {
-      $validator = Validator::make(Purifier::clean($request->all());
+      $validator = Validator::make(Purifier::clean($request->all()));
 
       // update last order
-      if ($request->input('quantity') != empty)
+      if (!empty($request->input('quantity')))
       {
         $quantityUpdate = $request->input('quantity');
         $order = Order::where("userId","=",$user->id)->first();
@@ -126,7 +154,7 @@ class OrdersController extends Controller
         $order->amount = $quantityUpdate;
       }
 
-      if ($request->input('item') != empty)
+      if (!empty($request->input('item')))
       {
 
         $itemUpdate = $request->input('item');
@@ -134,11 +162,11 @@ class OrdersController extends Controller
 
         $order->productsId = $itemUpdate;
       }
-      order->save();
+      $order->save();
     }
-  }
+  }*/
 
-    // allow user to cancel current order
+    //TODO allow user to cancel current order
     public function userDestroy($id)
     {
 

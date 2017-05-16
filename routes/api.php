@@ -31,6 +31,12 @@ Route::post('signUp', 'UsersController@signUp');
 Route::post('signIn', 'UsersController@signIn');
 Route::get('showAllUsers', 'UsersController@index');
 Route::post('updateAddress', 'UsersController@updateAddress');  
+Route::post('deleteUser/{id}', 'UsersController@deleteUser');
+Route::get('adminShowUser/{id}', 'UsersController@adminShowUser');
+Route::get('userShow', 'UsersController@userShow');
+
+// Order Routes
+Route::post('storeOrder', 'OrdersController@store');
 
 // Redirect Route
 Route::any('{path?}', 'MainController@index')->where("path", ".+");

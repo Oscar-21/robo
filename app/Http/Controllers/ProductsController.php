@@ -5,12 +5,14 @@
   use Response;
   use Illuminate\Support\Facades\Validator;
   use Purifier;
+  use Auth;
+  use App\User;
   use JWTAuth;
   class ProductsController extends Controller {
 
   public function __construct() 
   {
-    $this->middleware("jwt.auth", ["only"=>["store","update","destroy"]]);
+    $this->middleware("jwt.auth", ["only"=>["storeNewProduct","update","destroy"]]);
   }
 
     public function index() 
@@ -37,7 +39,7 @@
 
       $user = Auth::user();
 
-      if ($user->roleID!=1)
+      if ($user->roleID != 1 )
       {
         return Response::json(["error" => "No permissions"]);
       }

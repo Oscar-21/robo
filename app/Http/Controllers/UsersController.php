@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
+use App\Order;
+use App\Product;
 use Response;
 use Illuminate\Support\Facades\Validator;
 use Purifier;
@@ -16,10 +18,9 @@ class UsersController extends Controller
 {
   public function __construct() 
   {
-    $this->middleware("jwt.auth", ["only"=>["destroy","show","index","updateAddress"]]);
+    $this->middleware("jwt.auth", ["only"=>["deleteUser","show","index","updateAddress", "adminShowUser","userShow"]]);
   }
 
-  #DONE
   public function signUp(Request $request) 
   {
     $validator = Validator::make(Purifier::clean($request->all()), [
@@ -41,8 +42,9 @@ class UsersController extends Controller
     }
 
     $check = User::where("id","=",1)->first();
+    $checks = $request->input('address');
 
-    if (empty($check))
+    if (empty($check) )
     {
       $user = new User;
       $user->name = "Admin";
@@ -59,13 +61,18 @@ class UsersController extends Controller
     $user->password = Hash::make($request->input('password'));
     $user->email = $request->input('email');
     $user->roleID = 2;
+
+    if(!empty($checks))
+    {
+      $user->address = $checks;
+    }
     /*$user->roleID = Role::where("name","=",customer->get(id);*/
 
     $user->save();
     return Response::json(["success" => "User created successfully"]);
   }
 
-  # TODO
+  
   public function signIn(Request $request) 
   {
     $validator = Validator::make(Purifier::clean($request->all()), [
@@ -84,8 +91,7 @@ class UsersController extends Controller
       return Response::json(compact("token"));
   }
 
-  # TODO
-  # let admin delelte specific user
+  # ADMIN: delelte specific user
   public function deleteUser($id)
   {
     $admin = Auth::id();
@@ -94,42 +100,62 @@ class UsersController extends Controller
     {
       $user = User::find($id);
       $user->delete();
+
+      return Response::json(["success" => "Deleted User"]);
+    }
+    else
+    {
+      return Response::json(["error" => "Invalid credentials"]);
     }
   }
   
   # TODO
-  # let admin see all users
-  public function show()
+  # USER: see email/username/address/orders
+  public function userShow()
+  {
+    $user = Auth::user(); 
+
+    if ($user->roleID == 2)
+    {
+      $show = User::where("id","=",$user->id)->select("email","name","address")->first();
+      $orders = Order::where("userId","=",$user->id)->select("productsId")->get();
+      return Response::json($orders);
+    }
+  }
+
+  # ADMIN: show specific user
+  public function adminShowUser($id)
   {
     $admin = Auth::id();
 
     if ($admin == 1)
     {
-      $user = User::all();
-      return Response::json($user);
+      $user = User::where("id","=",$id)->first();
+
+      if (!empty($user))
+      {
+        return Response::json($user);
+      }
+      else
+      {
+        return Response::json(["error" => "No user exists with this id!"]);
+      }
     }
-  }
-
-  # TODO
-  # let admin see specific user
-  public function showUser($id)
-  {
-    $admin = Auth::id();
-
-    if ($admin == 1)
+    else
     {
-      $user = User::where("id","=",$id);
-      return Response::json($user);
+      return Response::json(["error" => "invalid credentials"]);
     }
   }
 
-  # TODO
-  # allow user to update address
+  
+  # USER update address
   public function updateAddress(Request $request)
   {
-    $id = Auth::id();
-    $user = User::where("id","=",$id)->first();
-    $check = $user->roleID;
+   $id = Auth::id();
+ 
+   $user = User::where("id","=",$id)->first();
+   $check = $user->roleID;
+   $address = $user->Address;
 
     if ($check == 2 )
     {
