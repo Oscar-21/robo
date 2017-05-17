@@ -62,11 +62,9 @@ class OrdersController extends Controller
       $order = Order::where('email','=',$userQuery)->get();
     }
   }
-  #TODO allow user to make order
+  #USER: make order
   public function store(Request $request)
   {
-
-
     $user = Auth::user();
     if ($user->roleID == 2)
     {
@@ -85,8 +83,7 @@ class OrdersController extends Controller
       $id = $request->input('productsId');
       $item = Product::where("categoryId","=",$id)->select("availability")->first();
       $update = Product::where("categoryId","=",$id)->first();
-    
-      if ( $item->availability == 0)
+      if ( $item["availability"] == 0)
       {
         return Response::json(["error", "Out of Stock"]);
       }

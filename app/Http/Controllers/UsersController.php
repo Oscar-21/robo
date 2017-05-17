@@ -118,8 +118,24 @@ class UsersController extends Controller
     if ($user->roleID == 2)
     {
       $show = User::where("id","=",$user->id)->select("email","name","address")->first();
+      /*return Response::json($show);*/
       $orders = Order::where("userId","=",$user->id)->select("productsId")->get();
-      return Response::json($orders);
+
+      $array = [$show];
+      $size = count($array);
+      $length = count($orders);
+
+      $iterate = $length + $size + 1;
+
+      for ( $i = $size; $i < $iterate; $i++)
+      {
+
+        $check = $orders[$i]['productsId'];
+        
+        $array[$i] = Product::where("categoryId","=",$check)->select("name")->first();
+      }
+
+      return Response::json($array);
     }
   }
 
