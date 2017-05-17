@@ -109,7 +109,6 @@ class UsersController extends Controller
     }
   }
   
-  # TODO
   # USER: see email/username/address/orders
   public function userShow()
   {
@@ -118,24 +117,24 @@ class UsersController extends Controller
     if ($user->roleID == 2)
     {
       $show = User::where("id","=",$user->id)->select("email","name","address")->first();
-      /*return Response::json($show);*/
+      
+      
       $orders = Order::where("userId","=",$user->id)->select("productsId")->get();
-
-      $array = [$show];
-      $size = count($array);
+  
+      $userInfo = [$show];
+      $userOrders = [];
       $length = count($orders);
 
-      $iterate = $length + $size + 1;
-
-      for ( $i = $size; $i < $iterate; $i++)
+      for ( $i = 0; $i < $length; $i++)
       {
 
         $check = $orders[$i]['productsId'];
         
-        $array[$i] = Product::where("categoryId","=",$check)->select("name")->first();
+        $userOrders[$i] = Product::where("categoryId","=",$check)->select("name")->first();
       }
 
-      return Response::json($array);
+      $userAllInfo = (object) array_merge((array) $userInfo, (array) $userOrders);
+      return Response::json($userAllInfo);
     }
   }
 
