@@ -20,7 +20,10 @@ class CreateUsersTable extends Migration
         $table->string('email')->unique();
         $table->string('password');
         $table->integer('roleID');
-        $table->longText('address')->nullable();
+        $table->string('address');
+        $table->longText('city');
+        $table->longText('country');
+        $table->longText('country');
         $table->rememberToken();
         $table->timestamps();
       });
